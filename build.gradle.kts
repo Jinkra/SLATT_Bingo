@@ -24,6 +24,7 @@ taboolib {
         install(Bukkit)
         install(I18n)
         install(CommandHelper)
+        install(BukkitHook)
         install(BukkitNMS)
         install(BukkitNMSUtil)
         install(BukkitUtil)
