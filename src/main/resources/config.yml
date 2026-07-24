@@ -4,10 +4,10 @@ placeholder-identifier: 'bingo'
 # The board is shared by all teams. Edit the material pool from /bingo admin.
 teams:
   Red:
-    display: '&cRed Team'
+    display: '&c红队'
     color: RED
   Blue:
-    display: '&9Blue Team'
+    display: '&9蓝队'
     color: BLUE
 assignments: {}
 

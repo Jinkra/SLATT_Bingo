@@ -10,6 +10,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.popcraft.chunky.api.ChunkyAPI
 import taboolib.common.platform.Plugin
 import taboolib.common.platform.function.console
@@ -32,7 +33,7 @@ object Bingo : Plugin()
 
     override fun onLoad()
     {
-        Language.default = "en_US"
+        Language.default = "zh_CN"
         console().sendLang("plugin-loading")
     }
 
@@ -46,6 +47,7 @@ object Bingo : Plugin()
     {
         registerBukkitListener(InventoryClickEvent::class.java) { Gui.onClick(it) }
         registerBukkitListener(InventoryCloseEvent::class.java) { Gui.onClose(it) }
+        registerBukkitListener(AsyncPlayerChatEvent::class.java) { Gui.onChat(it) }
         registerBukkitListener(BlockBreakEvent::class.java) { GameProgressListener.onBreak(it) }
         registerBukkitListener(EntityPickupItemEvent::class.java) { GameProgressListener.onPickup(it) }
         registerBukkitListener(CraftItemEvent::class.java) { GameProgressListener.onCraft(it) }

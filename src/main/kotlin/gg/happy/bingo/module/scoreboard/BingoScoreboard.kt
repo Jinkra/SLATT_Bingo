@@ -12,7 +12,7 @@ import org.bukkit.scoreboard.DisplaySlot
 
 object BingoScoreboard
 {
-    private val title = "${ChatColor.GOLD}${ChatColor.BOLD}SLATT Bingo"
+    private val title = "${ChatColor.GOLD}${ChatColor.BOLD}Bingo"
 
     fun updateAll()
     {
@@ -28,14 +28,14 @@ object BingoScoreboard
 
         val lines = mutableListOf(
             ChatColor.BLACK.toString(),
-            "${ChatColor.WHITE}State: ${stateName()}",
+            "${ChatColor.WHITE}状态：${stateName()}",
             ChatColor.DARK_BLUE.toString(),
-            "${ChatColor.WHITE}Your team: ${TeamManager.teamOf(player)?.displayName ?: "${ChatColor.GRAY}None"}",
-            "${ChatColor.WHITE}Time: ${formatDuration(GameManager.remainingSeconds())}",
+            "${ChatColor.WHITE}队伍：${TeamManager.teamOf(player)?.displayName ?: "${ChatColor.GRAY}未分配"}",
+            "${ChatColor.WHITE}时间：${formatDuration(GameManager.remainingSeconds())}",
             ChatColor.DARK_GREEN.toString()
         )
         TeamManager.teams.take(9).forEachIndexed { index, team ->
-            val winner = if (GameManager.phase is Finished && Finished.winner?.id == team.id) " ${ChatColor.GOLD}WIN" else ""
+            val winner = if (GameManager.phase is Finished && Finished.winner?.id == team.id) " ${ChatColor.GOLD}胜利" else ""
             val uniqueSuffix = ChatColor.values()[index + 3]
             lines += "${team.color}${team.displayName} ${ChatColor.WHITE}${TeamManager.completedCount(team)}/25$winner$uniqueSuffix"
         }
@@ -44,10 +44,10 @@ object BingoScoreboard
     }
 
     private fun stateName(): String = when (GameManager.phase) {
-        Main -> "${ChatColor.GREEN}Running"
-        Ready -> "${ChatColor.YELLOW}Starting"
-        is Finished -> "${ChatColor.GOLD}Finished"
-        else -> "${ChatColor.GRAY}Waiting"
+        Main -> "${ChatColor.GREEN}进行中"
+        Ready -> "${ChatColor.YELLOW}准备中"
+        is Finished -> "${ChatColor.GOLD}已结束"
+        else -> "${ChatColor.GRAY}等待中"
     }
 
     private fun formatDuration(seconds: Int) = "%d:%02d".format(seconds / 60, seconds % 60)

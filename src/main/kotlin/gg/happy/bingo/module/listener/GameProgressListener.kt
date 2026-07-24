@@ -39,7 +39,7 @@ object GameProgressListener : Listener
         val team = TeamManager.teamOf(player) ?: return
         val index = Card.items.indexOf(material)
         if (index < 0 || !TeamManager.markCompleted(team, index)) return
-        Bukkit.broadcastMessage("${team.color}${team.displayName} collected ${material.name.lowercase().replace('_', ' ')}.")
+        Bukkit.broadcastMessage("${team.color}${team.displayName} 收集了 ${material.name.lowercase().replace('_', ' ')}。")
         BingoScoreboard.updateAll()
         if (TeamManager.hasBingo(team)) GameManager.finish(team)
     }

@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemFlag
@@ -30,11 +31,13 @@ private abstract class BingoHolder : InventoryHolder
 private class AdminHolder : BingoHolder()
 private class ItemEditorHolder : BingoHolder()
 private class TeamHolder : BingoHolder()
+private class TeamSelectHolder : BingoHolder()
 private class BoardHolder : BingoHolder()
 
 object Gui
 {
     private val boardSlots = intArrayOf(10, 11, 12, 13, 14, 19, 20, 21, 22, 23, 28, 29, 30, 31, 32, 37, 38, 39, 40, 41, 46, 47, 48, 49, 50)
+    private val teamCreation = mutableSetOf<java.util.UUID>()
 
     private fun item(material: Material, name: String, lore: List<String> = emptyList()): ItemStack =
         ItemStack(material).apply {
@@ -53,17 +56,17 @@ object Gui
     fun openAdmin(player: Player)
     {
         val holder = AdminHolder()
-        val inv = inventory(holder, 27, "&8Bingo Administration")
+        val inv = inventory(holder, 27, "&8Bingo 管理面板")
         val canStart = GameManager.canStart()
         inv.setItem(10, item(if (canStart) Material.LIME_CONCRETE else Material.BARRIER,
-            if (canStart) "&aStart match" else "&cMatch is already running", listOf("&7Starts a five-second countdown.")))
-        inv.setItem(12, item(Material.CHEST, "&eEdit item pool", listOf("&7Add at least 25 different materials.")))
-        inv.setItem(14, item(Material.PLAYER_HEAD, "&bAssign teams", listOf("&7Click online players to cycle their team.")))
-        inv.setItem(16, item(Material.SUNFLOWER, "&6Open player board", listOf("&7Preview the current shared board.")))
-        inv.setItem(18, item(Material.CLOCK, "&dGame duration: ${formatDuration(Conf.gameDurationSeconds)}", listOf(
-            "&7Left click: add 1 minute",
-            "&7Right click: remove 1 minute",
-            "&7Minimum: 1 minute"
+            if (canStart) "&a开始比赛" else "&c比赛正在进行", listOf("&7开始五秒倒计时。")))
+        inv.setItem(12, item(Material.CHEST, "&e编辑物品池", listOf("&7至少需要 25 种不同物品。")))
+        inv.setItem(14, item(Material.PLAYER_HEAD, "&b分配队伍", listOf("&7点击在线玩家切换其队伍。")))
+        inv.setItem(16, item(Material.SUNFLOWER, "&6打开玩家卡牌", listOf("&7预览当前共用的 Bingo 卡牌。")))
+        inv.setItem(18, item(Material.CLOCK, "&d比赛时长：${formatDuration(Conf.gameDurationSeconds)}", listOf(
+            "&7左键：增加 1 分钟",
+            "&7右键：减少 1 分钟",
+            "&7最短：1 分钟"
         )))
         player.openInventory(inv)
     }
@@ -71,7 +74,7 @@ object Gui
     fun openItemEditor(player: Player)
     {
         val holder = ItemEditorHolder()
-        val inv = inventory(holder, 45, "&8Bingo Item Pool")
+        val inv = inventory(holder, 45, "&8Bingo 物品池")
         Bingo.conf.getStringList("items").mapNotNull { Material.matchMaterial(it) }.take(45).forEachIndexed { index, material ->
             inv.setItem(index, ItemStack(material))
         }
@@ -81,41 +84,92 @@ object Gui
     fun openTeams(player: Player)
     {
         val holder = TeamHolder()
-        val inv = inventory(holder, 54, "&8Bingo Teams")
+        val inv = inventory(holder, 54, "&8Bingo 队伍管理")
         val teams = TeamManager.teams
+        inv.setItem(8, item(Material.NAME_TAG, "&aCreate team", listOf("&7Click, then type a team name in chat.")))
         teams.take(9).forEachIndexed { index, team ->
-            inv.setItem(index, item(teamMaterial(team.color), team.displayName, listOf("&7Team ${index + 1}")))
+            inv.setItem(index, item(teamMaterial(team.color), team.displayName, listOf("&7第 ${index + 1} 队")))
         }
         Bukkit.getOnlinePlayers().take(45).forEachIndexed { index, target ->
             val team = TeamManager.teamOf(target)
             inv.setItem(index + 9, item(Material.PLAYER_HEAD, "&f${target.name}", listOf(
-                "&7Current: ${team?.displayName ?: "&7Unassigned"}",
-                "&eClick to assign the next team."
+                "&7当前队伍：${team?.displayName ?: "&7未分配"}",
+                "&e点击分配到下一支队伍。"
             )))
         }
         player.openInventory(inv)
+    }
+
+    fun openTeamSelector(player: Player)
+    {
+        val holder = TeamSelectHolder()
+        val inv = inventory(holder, 27, "&8Choose a Bingo Team")
+        val current = TeamManager.teamOf(player)
+        TeamManager.teams.take(9).forEachIndexed { index, team ->
+            inv.setItem(index, item(teamMaterial(team.color), team.displayName, listOf(
+                if (current?.id == team.id) "&aYour current team" else "&7Click to join this team"
+            )))
+        }
+        inv.setItem(22, item(Material.BARRIER, "&cLeave team", listOf("&7Become unassigned.")))
+        player.openInventory(inv)
+    }
+
+    private fun beginTeamCreation(player: Player)
+    {
+        teamCreation += player.uniqueId
+        player.closeInventory()
+        player.sendMessage(colour("&eType the new team name in chat (1-16 letters, numbers, _ or -)."))
     }
 
     fun openBoard(player: Player)
     {
         val holder = BoardHolder()
-        val inv = inventory(holder, 54, "&8Bingo Board")
+        val inv = inventory(holder, 54, "&8Bingo 卡牌")
         val team = TeamManager.teamOf(player)
+        val frame = team?.let { teamFrameMaterial(it.color) } ?: Material.GRAY_STAINED_GLASS_PANE
+        intArrayOf(9, 10, 11, 12, 13, 14, 15, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53)
+            .forEach { inv.setItem(it, item(frame, "&8${team?.displayName ?: "No team"}")) }
         Card.items.forEachIndexed { index, material ->
             if (material == null) return@forEachIndexed
             val completed = TeamManager.isCompleted(team, index)
-            inv.setItem(boardSlots[index], item(material, "&f${prettyName(material)}", listOf(
-                if (completed) "&aCollected" else "&7Not collected",
-                "&8${team?.displayName ?: "No team assigned"}"
+            inv.setItem(boardSlots[index], item(material, "&f${materialName(material)}", listOf(
+                if (completed) "&a已收集" else "&7未收集",
+                "&8${team?.displayName ?: "未分配队伍"}"
             )))
         }
-        inv.setItem(4, item(Material.NETHER_STAR, "&e${team?.displayName ?: "No team"}", listOf(
-            "&7${if (GameManager.phase === Main) "Match in progress" else "Match is not running"}"
+        inv.setItem(4, item(Material.NETHER_STAR, "&e${team?.displayName ?: "未分配队伍"}", listOf(
+            "&7${if (GameManager.phase === Main) "比赛进行中" else "当前没有进行中的比赛"}"
         )))
         player.openInventory(inv)
     }
 
-    private fun prettyName(material: Material) = material.name.lowercase().split('_').joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
+    private fun materialName(material: Material): String = mapOf(
+        Material.IRON_PICKAXE to "铁镐",
+        Material.STONE to "石头",
+        Material.OAK_LOG to "橡木原木",
+        Material.COAL to "煤炭",
+        Material.COPPER_ORE to "铜矿石",
+        Material.IRON_ORE to "铁矿石",
+        Material.GOLD_ORE to "金矿石",
+        Material.DIAMOND to "钻石",
+        Material.REDSTONE to "红石",
+        Material.LAPIS_LAZULI to "青金石",
+        Material.OBSIDIAN to "黑曜石",
+        Material.SAND to "沙子",
+        Material.GRAVEL to "沙砾",
+        Material.WHEAT to "小麦",
+        Material.PUMPKIN to "南瓜",
+        Material.MELON_SLICE to "西瓜片",
+        Material.LEATHER to "皮革",
+        Material.BONE to "骨头",
+        Material.STRING to "线",
+        Material.ENDER_PEARL to "末影珍珠",
+        Material.BLAZE_ROD to "烈焰棒",
+        Material.SLIME_BALL to "黏液球",
+        Material.CACTUS to "仙人掌",
+        Material.SUGAR_CANE to "甘蔗",
+        Material.GLOWSTONE_DUST to "荧石粉"
+    )[material] ?: material.name.lowercase().split('_').joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
 
     private fun formatDuration(seconds: Int) = "%d:%02d".format(seconds / 60, seconds % 60)
 
@@ -127,6 +181,16 @@ object Gui
         ChatColor.AQUA, ChatColor.DARK_AQUA -> Material.CYAN_WOOL
         ChatColor.LIGHT_PURPLE, ChatColor.DARK_PURPLE -> Material.PURPLE_WOOL
         else -> Material.WHITE_WOOL
+    }
+
+    private fun teamFrameMaterial(color: ChatColor): Material = when (color) {
+        ChatColor.RED, ChatColor.DARK_RED -> Material.RED_STAINED_GLASS_PANE
+        ChatColor.BLUE, ChatColor.DARK_BLUE -> Material.BLUE_STAINED_GLASS_PANE
+        ChatColor.GREEN, ChatColor.DARK_GREEN -> Material.LIME_STAINED_GLASS_PANE
+        ChatColor.YELLOW, ChatColor.GOLD -> Material.YELLOW_STAINED_GLASS_PANE
+        ChatColor.AQUA, ChatColor.DARK_AQUA -> Material.CYAN_STAINED_GLASS_PANE
+        ChatColor.LIGHT_PURPLE, ChatColor.DARK_PURPLE -> Material.PURPLE_STAINED_GLASS_PANE
+        else -> Material.WHITE_STAINED_GLASS_PANE
     }
 
     @EventHandler
@@ -148,11 +212,17 @@ object Gui
                         Conf.setGameDurationSeconds(Conf.gameDurationSeconds + change)
                         openAdmin(event.whoClicked as Player)
                     }
+                    8 -> beginTeamCreation(event.whoClicked as Player)
                 }
             }
             is TeamHolder -> {
                 event.isCancelled = true
-                if (!inTop || event.rawSlot < 9) return
+                if (!inTop) return
+                if (event.rawSlot == 8) {
+                    beginTeamCreation(event.whoClicked as Player)
+                    return
+                }
+                if (event.rawSlot < 9) return
                 val target = Bukkit.getOnlinePlayers().elementAtOrNull(event.rawSlot - 9) ?: return
                 val teams = TeamManager.teams
                 if (teams.isEmpty()) return
@@ -160,6 +230,19 @@ object Gui
                 val next = teams[(teams.indexOf(current) + 1) % teams.size]
                 TeamManager.assign(target, next)
                 openTeams(event.whoClicked as Player)
+            }
+            is TeamSelectHolder -> {
+                event.isCancelled = true
+                if (!inTop) return
+                val player = event.whoClicked as? Player ?: return
+                if (event.rawSlot == 22) {
+                    TeamManager.assign(player, null)
+                    openTeamSelector(player)
+                    return
+                }
+                val team = TeamManager.teams.getOrNull(event.rawSlot) ?: return
+                TeamManager.assign(player, team)
+                openBoard(player)
             }
             is BoardHolder -> event.isCancelled = true
         }
@@ -173,6 +256,23 @@ object Gui
         val materials = event.inventory.contents.filterNotNull().map { it.type }.filter { it != Material.AIR }.distinct()
         Bingo.conf.set("items", materials.map { it.name })
         Bingo.conf.saveToFile()
-        submit { event.player.sendMessage(colour("&aBingo item pool saved with ${materials.size} materials.")) }
+        submit { event.player.sendMessage(colour("&a物品池已保存，共 ${materials.size} 种物品。")) }
+    }
+
+    fun onChat(event: AsyncPlayerChatEvent)
+    {
+        if (!teamCreation.remove(event.player.uniqueId)) return
+        event.isCancelled = true
+        val id = event.message.trim()
+        if (!Regex("[A-Za-z0-9_-]{1,16}").matches(id)) {
+            event.player.sendMessage(colour("&cInvalid team name."))
+            return
+        }
+        submit {
+            val team = TeamManager.createTeam(id)
+            if (team == null) event.player.sendMessage(colour("&cThat team already exists."))
+            else event.player.sendMessage(colour("&aCreated ${team.displayName}&a."))
+            openTeams(event.player)
+        }
     }
 }

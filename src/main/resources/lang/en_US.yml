@@ -1,10 +1,10 @@
 
-plugin-loading: '[Bingo] Plugin is loading...'
-plugin-enabled: '[Bingo] Plugin is enabled.'
-plugin-active: '[Bingo] Plugin is active.'
-plugin-disabled: '[Bingo] Plugin is disabled.'
+plugin-loading: '[Bingo] 插件正在加载...'
+plugin-enabled: '[Bingo] 插件已启用。'
+plugin-active: '[Bingo] 插件正在运行。'
+plugin-disabled: '[Bingo] 插件已禁用。'
 
-world-generated: '[Bingo] {0} has been generated.'
-no-permission: '&cYou do not have permission to do that.'
-game-started: '&aBingo has started! Open /bingo to view the board.'
-game-finished: '&6{0} won this Bingo match!'
+world-generated: '[Bingo] {0} 已预生成。'
+no-permission: '&c你没有执行此操作的权限。'
+game-started: '&aBingo 游戏已开始！使用 /bingo 查看卡牌。'
+game-finished: '&6{0} 赢得了本局 Bingo！'

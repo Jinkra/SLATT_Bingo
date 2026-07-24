@@ -7,7 +7,7 @@ object Waiting : GamePhase
 {
     override fun onStart()
     {
-        Bukkit.broadcastMessage("Bingo is waiting for an administrator to start a match.")
+        Bukkit.broadcastMessage("Bingo 正在等待管理员开始比赛。")
     }
 
     override fun onEnd()

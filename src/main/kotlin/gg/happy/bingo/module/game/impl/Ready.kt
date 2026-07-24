@@ -11,7 +11,7 @@ object Ready : GamePhase
     override fun onStart()
     {
         SneakSwapListener.register()
-        Bukkit.broadcastMessage("Bingo begins in 5 seconds.")
+        Bukkit.broadcastMessage("Bingo 将在 5 秒后开始。")
         submit(delay = 100) {
             if (GameManager.phase === Ready) GameManager.phase = Main
         }

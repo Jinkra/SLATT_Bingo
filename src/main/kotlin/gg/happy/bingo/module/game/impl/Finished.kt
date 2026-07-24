@@ -10,8 +10,8 @@ object Finished: GamePhase
 
     override fun onStart()
     {
-        winner?.let { Bukkit.broadcastMessage("${it.color}${it.displayName} won this Bingo match!") }
-            ?: Bukkit.broadcastMessage("Bingo match finished: time is up.")
+        winner?.let { Bukkit.broadcastMessage("${it.color}${it.displayName} 赢得了本局 Bingo！") }
+            ?: Bukkit.broadcastMessage("Bingo 比赛结束，时间到！")
     }
 
     override fun onEnd()

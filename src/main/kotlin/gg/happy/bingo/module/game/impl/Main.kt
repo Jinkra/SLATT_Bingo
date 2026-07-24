@@ -19,7 +19,7 @@ object Main : GamePhase
         submit(delay = Conf.gameDurationSeconds * 20L) {
             if (GameManager.phase === Main) GameManager.finish()
         }
-        Bukkit.broadcastMessage("Bingo has started! Use /bingo to view the board.")
+        Bukkit.broadcastMessage("Bingo 比赛开始了！使用 /bingo 查看卡牌。")
     }
 
     override fun onEnd()

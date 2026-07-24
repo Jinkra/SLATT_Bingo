@@ -8,7 +8,7 @@ import taboolib.common.platform.command.CommandHeader
 import taboolib.common.platform.command.mainCommand
 import taboolib.common.platform.command.subCommand
 
-@CommandHeader("Bingo")
+@CommandHeader("bingo", permission = "")
 object Command
 {
     @CommandBody
@@ -16,14 +16,17 @@ object Command
         literal("admin") {
             execute<Player> { sender, _, _ ->
                 if (!sender.hasPermission("bingo.admin")) {
-                    sender.sendMessage("${ChatColor.RED}You do not have permission to do that.")
+                    sender.sendMessage("${ChatColor.RED}你没有执行此操作的权限。")
                     return@execute
                 }
                 Gui.openAdmin(sender)
             }
         }
+        literal("list") {
+            execute<Player> { sender, _, _ -> Gui.openBoard(sender) }
+        }
         execute<Player> { sender, _, _ ->
-            Gui.openBoard(sender)
+            Gui.openTeamSelector(sender)
         }
     }
 

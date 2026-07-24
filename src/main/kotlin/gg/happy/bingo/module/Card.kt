@@ -13,7 +13,7 @@ object Card
     fun generate()
     {
         val toSelect = Conf.items.distinct().toMutableList()
-        require(toSelect.size >= SIZE) { "At least $SIZE different materials are required for a Bingo board." }
+        require(toSelect.size >= SIZE) { "Bingo 卡牌至少需要 $SIZE 种不同的物品。" }
         Collections.shuffle(toSelect)
         for (i in 0 until SIZE) items[i] = toSelect[i]
     }

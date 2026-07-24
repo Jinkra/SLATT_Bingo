@@ -10,6 +10,7 @@ data class BingoTeam(val id: String, val displayName: String, val color: ChatCol
 object TeamManager
 {
     private val completed = mutableMapOf<String, MutableSet<Int>>()
+    private val defaultColors = listOf(ChatColor.RED, ChatColor.BLUE, ChatColor.GREEN, ChatColor.YELLOW, ChatColor.AQUA, ChatColor.LIGHT_PURPLE, ChatColor.GOLD, ChatColor.WHITE)
 
     val teams: List<BingoTeam>
         get()
@@ -38,6 +39,29 @@ object TeamManager
     {
         Bingo.conf.set("assignments.${player.uniqueId}", team?.id)
         Bingo.conf.saveToFile()
+    }
+
+    fun contains(id: String): Boolean = teams.any { it.id.equals(id, ignoreCase = true) }
+
+    fun createTeam(id: String): BingoTeam?
+    {
+        if (contains(id)) return null
+        val color = defaultColors[teams.size % defaultColors.size]
+        Bingo.conf.set("teams.$id.display", "&${colorCode(color)}$id")
+        Bingo.conf.set("teams.$id.color", color.name)
+        Bingo.conf.saveToFile()
+        return teams.firstOrNull { it.id == id }
+    }
+
+    private fun colorCode(color: ChatColor): Char = when (color) {
+        ChatColor.RED -> 'c'
+        ChatColor.BLUE -> '9'
+        ChatColor.GREEN -> 'a'
+        ChatColor.YELLOW -> 'e'
+        ChatColor.AQUA -> 'b'
+        ChatColor.LIGHT_PURPLE -> 'd'
+        ChatColor.GOLD -> '6'
+        else -> 'f'
     }
 
     fun clearProgress() = completed.clear()
