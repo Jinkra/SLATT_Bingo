@@ -59,7 +59,6 @@ dependencies {
     compileOnly(fileTree("libs"))
 
     compileOnly("org.popcraft:chunky-common:1.3.38")
-    compileOnly("com.github.NEZNAMY:TAB-API:6.1.0")
 }
 
 tasks.withType<JavaCompile> {

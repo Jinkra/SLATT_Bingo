@@ -1,6 +1,19 @@
 
 placeholder-identifier: 'bingo'
 
+# The board is shared by all teams. Edit the material pool from /bingo admin.
+teams:
+  Red:
+    display: '&cRed Team'
+    color: RED
+  Blue:
+    display: '&9Blue Team'
+    color: BLUE
+assignments: {}
+
+# Configured from /bingo admin. The match ends automatically when this timer reaches zero.
+game-duration-seconds: 900
+
 spawn:
   world: 'lobby'
   x: 0.5
@@ -13,3 +26,30 @@ sneak-swap-action:
   - invero:menu open menu
 main-command:
   - invero:menu open menu
+
+items:
+  - 'IRON_PICKAXE'
+  - 'STONE'
+  - 'OAK_LOG'
+  - 'COAL'
+  - 'COPPER_ORE'
+  - 'IRON_ORE'
+  - 'GOLD_ORE'
+  - 'DIAMOND'
+  - 'REDSTONE'
+  - 'LAPIS_LAZULI'
+  - 'OBSIDIAN'
+  - 'SAND'
+  - 'GRAVEL'
+  - 'WHEAT'
+  - 'PUMPKIN'
+  - 'MELON_SLICE'
+  - 'LEATHER'
+  - 'BONE'
+  - 'STRING'
+  - 'ENDER_PEARL'
+  - 'BLAZE_ROD'
+  - 'SLIME_BALL'
+  - 'CACTUS'
+  - 'SUGAR_CANE'
+  - 'GLOWSTONE_DUST'

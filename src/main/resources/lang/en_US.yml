@@ -5,3 +5,6 @@ plugin-active: '[Bingo] Plugin is active.'
 plugin-disabled: '[Bingo] Plugin is disabled.'
 
 world-generated: '[Bingo] {0} has been generated.'
+no-permission: '&cYou do not have permission to do that.'
+game-started: '&aBingo has started! Open /bingo to view the board.'
+game-finished: '&6{0} won this Bingo match!'

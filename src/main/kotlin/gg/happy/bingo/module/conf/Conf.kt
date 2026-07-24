@@ -13,7 +13,7 @@ object Conf
 
     val itemsConf = Bingo.itemsConf
 
-    var placeholderIdentifier = conf.getString("placeholder-identifier", "blockracing")!!
+    val placeholderIdentifier get() = conf.getString("placeholder-identifier", "bingo")!!
 
     var spawn = Location(
         Bukkit.getWorld(conf.getString("spawn.world", "world")!!),
@@ -24,10 +24,18 @@ object Conf
         conf.getDouble("spawn.pitch", 0.0).toFloat()
     )
 
-    var sneakSwapAction = conf.getStringList("sneak-swap-action")
-    var mainCommand = conf.getStringList("main-command")
+    val sneakSwapAction get() = conf.getStringList("sneak-swap-action")
+    val mainCommand get() = conf.getStringList("main-command")
 
-    var items = mutableListOf<Material>().apply {
+    val gameDurationSeconds get() = conf.getInt("game-duration-seconds", 900).coerceAtLeast(60)
+
+    fun setGameDurationSeconds(seconds: Int)
+    {
+        conf.set("game-duration-seconds", seconds.coerceAtLeast(60))
+        conf.saveToFile()
+    }
+
+    val items get() = mutableListOf<Material>().apply {
         conf.getStringList("items").forEach { id ->
             Material
                 .getMaterial(id.replace(' ', '_').uppercase())
