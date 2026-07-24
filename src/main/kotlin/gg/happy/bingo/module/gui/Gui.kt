@@ -20,6 +20,7 @@ import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import taboolib.module.nms.getI18nName
 import taboolib.common.platform.function.submit
 
 private abstract class BingoHolder : InventoryHolder
@@ -132,41 +133,13 @@ object Gui
         Card.items.forEachIndexed { index, material ->
             if (material == null) return@forEachIndexed
             val completed = TeamManager.isCompleted(team, index)
-            inv.setItem(boardSlots[index], item(material, "&f${materialName(material)}", listOf(
+            inv.setItem(boardSlots[index], item(material, "&f${material.getI18nName(player)}", listOf(
                 if (completed) "&a已收集" else "&7未收集",
                 "&8${team?.displayName ?: "未分配队伍"}"
             )))
         }
         player.openInventory(inv)
     }
-
-    private fun materialName(material: Material): String = mapOf(
-        Material.IRON_PICKAXE to "铁镐",
-        Material.STONE to "石头",
-        Material.OAK_LOG to "橡木原木",
-        Material.COAL to "煤炭",
-        Material.COPPER_ORE to "铜矿石",
-        Material.IRON_ORE to "铁矿石",
-        Material.GOLD_ORE to "金矿石",
-        Material.DIAMOND to "钻石",
-        Material.REDSTONE to "红石",
-        Material.LAPIS_LAZULI to "青金石",
-        Material.OBSIDIAN to "黑曜石",
-        Material.SAND to "沙子",
-        Material.GRAVEL to "沙砾",
-        Material.WHEAT to "小麦",
-        Material.PUMPKIN to "南瓜",
-        Material.MELON_SLICE to "西瓜片",
-        Material.LEATHER to "皮革",
-        Material.BONE to "骨头",
-        Material.STRING to "线",
-        Material.ENDER_PEARL to "末影珍珠",
-        Material.BLAZE_ROD to "烈焰棒",
-        Material.SLIME_BALL to "黏液球",
-        Material.CACTUS to "仙人掌",
-        Material.SUGAR_CANE to "甘蔗",
-        Material.GLOWSTONE_DUST to "荧石粉"
-    )[material] ?: material.name.lowercase().split('_').joinToString(" ") { it.replaceFirstChar(Char::uppercase) }
 
     private fun formatDuration(seconds: Int) = "%d:%02d".format(seconds / 60, seconds % 60)
 
