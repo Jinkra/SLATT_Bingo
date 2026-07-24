@@ -35,12 +35,21 @@ taboolib {
         contributors {
             name("Happy")
         }
+        dependencies {
+            name("TAB")
+            name("Chunky")
+        }
     }
     version { taboolib = "6.3.0-c6f096d" }
 }
 
 repositories {
     mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.codemc.io/repository/maven-public/")
+    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    maven("https://jitpack.io")
+    maven("https://repo.tabooproject.org/repository/releases")
 }
 
 dependencies {
@@ -48,6 +57,9 @@ dependencies {
     compileOnly("ink.ptms.core:v12004:12004:universal")
     compileOnly(kotlin("stdlib"))
     compileOnly(fileTree("libs"))
+
+    compileOnly("org.popcraft:chunky-common:1.3.38")
+    compileOnly("com.github.NEZNAMY:TAB-API:6.1.0")
 }
 
 tasks.withType<JavaCompile> {
