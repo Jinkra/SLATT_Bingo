@@ -1,0 +1,15 @@
+
+placeholder-identifier: 'bingo'
+
+spawn:
+  world: 'lobby'
+  x: 0.5
+  y: 64
+  z: 0.5
+  yaw: 0
+  pitch: 0
+
+sneak-swap-action:
+  - invero:menu open menu
+main-command:
+  - invero:menu open menu

@@ -1,6 +1,7 @@
 package gg.happy.bingo.module.game.impl
 
 import gg.happy.bingo.module.game.GamePhase
+import gg.happy.bingo.module.listener.SneakSwapListener
 
 object Finished: GamePhase
 {
@@ -11,6 +12,6 @@ object Finished: GamePhase
 
     override fun onEnd()
     {
-        TODO("Not yet implemented")
+        SneakSwapListener.unregister()
     }
 }

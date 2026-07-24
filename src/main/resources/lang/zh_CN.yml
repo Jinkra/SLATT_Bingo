@@ -7,3 +7,5 @@ plugin-disabled: '[Bingo] 插件已禁用.'
 error: '[Bingo] 发生错误: {0}'
 
 world-generated: '[Bingo] {0} 已预生成.'
+
+item-load-fail: '[Bingo] 物品加载错误.'
