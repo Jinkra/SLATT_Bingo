@@ -1,7 +1,7 @@
 
 placeholder-identifier: 'bingo'
 
-# The board is shared by all teams. Edit the material pool from /bingo admin.
+# 所有队伍共用同一张 Bingo 卡牌，可通过 /bingo admin 编辑物品池。
 teams:
   Red:
     display: '&c红队'

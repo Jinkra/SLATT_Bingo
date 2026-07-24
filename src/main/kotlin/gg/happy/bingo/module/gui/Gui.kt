@@ -36,7 +36,7 @@ private class BoardHolder : BingoHolder()
 
 object Gui
 {
-    private val boardSlots = intArrayOf(10, 11, 12, 13, 14, 19, 20, 21, 22, 23, 28, 29, 30, 31, 32, 37, 38, 39, 40, 41, 46, 47, 48, 49, 50)
+    private val boardSlots = intArrayOf(11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 29, 30, 31, 32, 33, 38, 39, 40, 41, 42, 47, 48, 49, 50, 51)
     private val teamCreation = mutableSetOf<java.util.UUID>()
 
     private fun item(material: Material, name: String, lore: List<String> = emptyList()): ItemStack =
@@ -86,7 +86,7 @@ object Gui
         val holder = TeamHolder()
         val inv = inventory(holder, 54, "&8Bingo 队伍管理")
         val teams = TeamManager.teams
-        inv.setItem(8, item(Material.NAME_TAG, "&aCreate team", listOf("&7Click, then type a team name in chat.")))
+        inv.setItem(8, item(Material.NAME_TAG, "&a创建队伍", listOf("&7点击后在聊天框输入队伍名称。")))
         teams.take(9).forEachIndexed { index, team ->
             inv.setItem(index, item(teamMaterial(team.color), team.displayName, listOf("&7第 ${index + 1} 队")))
         }
@@ -103,14 +103,14 @@ object Gui
     fun openTeamSelector(player: Player)
     {
         val holder = TeamSelectHolder()
-        val inv = inventory(holder, 27, "&8Choose a Bingo Team")
+        val inv = inventory(holder, 27, "&8选择 Bingo 队伍")
         val current = TeamManager.teamOf(player)
         TeamManager.teams.take(9).forEachIndexed { index, team ->
             inv.setItem(index, item(teamMaterial(team.color), team.displayName, listOf(
-                if (current?.id == team.id) "&aYour current team" else "&7Click to join this team"
+                if (current?.id == team.id) "&a你当前的队伍" else "&7点击加入这支队伍"
             )))
         }
-        inv.setItem(22, item(Material.BARRIER, "&cLeave team", listOf("&7Become unassigned.")))
+        inv.setItem(22, item(Material.BARRIER, "&c离开队伍", listOf("&7成为未分配状态。")))
         player.openInventory(inv)
     }
 
@@ -118,7 +118,7 @@ object Gui
     {
         teamCreation += player.uniqueId
         player.closeInventory()
-        player.sendMessage(colour("&eType the new team name in chat (1-16 letters, numbers, _ or -)."))
+        player.sendMessage(colour("&e请在聊天框输入队伍名称（1-16 个字母、数字、下划线或短横线）。"))
     }
 
     fun openBoard(player: Player)
@@ -127,8 +127,8 @@ object Gui
         val inv = inventory(holder, 54, "&8Bingo 卡牌")
         val team = TeamManager.teamOf(player)
         val frame = team?.let { teamFrameMaterial(it.color) } ?: Material.GRAY_STAINED_GLASS_PANE
-        intArrayOf(9, 10, 11, 12, 13, 14, 15, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53)
-            .forEach { inv.setItem(it, item(frame, "&8${team?.displayName ?: "No team"}")) }
+        intArrayOf(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 53)
+            .forEach { inv.setItem(it, item(frame, "&8${team?.displayName ?: "未分配队伍"}")) }
         Card.items.forEachIndexed { index, material ->
             if (material == null) return@forEachIndexed
             val completed = TeamManager.isCompleted(team, index)
@@ -137,9 +137,6 @@ object Gui
                 "&8${team?.displayName ?: "未分配队伍"}"
             )))
         }
-        inv.setItem(4, item(Material.NETHER_STAR, "&e${team?.displayName ?: "未分配队伍"}", listOf(
-            "&7${if (GameManager.phase === Main) "比赛进行中" else "当前没有进行中的比赛"}"
-        )))
         player.openInventory(inv)
     }
 
@@ -222,7 +219,11 @@ object Gui
                     beginTeamCreation(event.whoClicked as Player)
                     return
                 }
-                if (event.rawSlot < 9) return
+                if (event.rawSlot < 9) {
+                    TeamManager.teams.getOrNull(event.rawSlot)?.let { TeamManager.cycleColor(it) }
+                    openTeams(event.whoClicked as Player)
+                    return
+                }
                 val target = Bukkit.getOnlinePlayers().elementAtOrNull(event.rawSlot - 9) ?: return
                 val teams = TeamManager.teams
                 if (teams.isEmpty()) return
@@ -265,13 +266,13 @@ object Gui
         event.isCancelled = true
         val id = event.message.trim()
         if (!Regex("[A-Za-z0-9_-]{1,16}").matches(id)) {
-            event.player.sendMessage(colour("&cInvalid team name."))
+            event.player.sendMessage(colour("&c队伍名称无效。"))
             return
         }
         submit {
             val team = TeamManager.createTeam(id)
-            if (team == null) event.player.sendMessage(colour("&cThat team already exists."))
-            else event.player.sendMessage(colour("&aCreated ${team.displayName}&a."))
+            if (team == null) event.player.sendMessage(colour("&c该队伍已经存在。"))
+            else event.player.sendMessage(colour("&a已创建 ${team.displayName}&a。"))
             openTeams(event.player)
         }
     }

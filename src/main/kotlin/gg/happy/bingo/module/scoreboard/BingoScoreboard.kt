@@ -12,7 +12,7 @@ import org.bukkit.scoreboard.DisplaySlot
 
 object BingoScoreboard
 {
-    private val title = "${ChatColor.GOLD}${ChatColor.BOLD}Bingo"
+    private val title = "${ChatColor.GOLD}${ChatColor.BOLD}SLATT Bingo"
 
     fun updateAll()
     {

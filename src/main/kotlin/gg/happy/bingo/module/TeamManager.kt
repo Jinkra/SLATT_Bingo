@@ -53,6 +53,14 @@ object TeamManager
         return teams.firstOrNull { it.id == id }
     }
 
+    fun cycleColor(team: BingoTeam)
+    {
+        val index = defaultColors.indexOf(team.color)
+        val next = defaultColors[(index + 1).coerceAtLeast(0) % defaultColors.size]
+        Bingo.conf.set("teams.${team.id}.color", next.name)
+        Bingo.conf.saveToFile()
+    }
+
     private fun colorCode(color: ChatColor): Char = when (color) {
         ChatColor.RED -> 'c'
         ChatColor.BLUE -> '9'
