@@ -1,0 +1,9 @@
+
+plugin-loading: '[Bingo] 插件正在加载...'
+plugin-enabled: '[Bingo] 插件已启用.'
+plugin-active: '[Bingo] 插件正在运行.'
+plugin-disabled: '[Bingo] 插件已禁用.'
+
+error: '[Bingo] 发生错误: {0}'
+
+world-generated: '[Bingo] {0} 已预生成.'

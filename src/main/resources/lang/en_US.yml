@@ -1,0 +1,7 @@
+
+plugin-loading: '[Bingo] Plugin is loading...'
+plugin-enabled: '[Bingo] Plugin is enabled.'
+plugin-active: '[Bingo] Plugin is active.'
+plugin-disabled: '[Bingo] Plugin is disabled.'
+
+world-generated: '[Bingo] {0} has been generated.'
